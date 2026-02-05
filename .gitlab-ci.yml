@@ -9,63 +9,59 @@ variables:
   VENV_PATH: "$CI_PROJECT_DIR/.venv"
 
 
-.install_java_maven:
-  before_script:
-    - chmod +x mvnw 2>/dev/null || true
-    - |
-      if [ -z "$JAVA_HOME" ] || [ ! -d "$JAVA_HOME" ]; then
-        if command -v java >/dev/null 2>&1; then
-          JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
-          if [ -n "$JAVA_HOME" ]; then export JAVA_HOME; fi
-        fi
-      fi
-    - |
-      if [ -z "$JAVA_HOME" ] && command -v java >/dev/null 2>&1; then
-        JAVAPATH=$(which java)
-        if [ -L "$JAVAPATH" ]; then JAVAPATH=$(readlink -f "$JAVAPATH" 2>/dev/null || readlink "$JAVAPATH"); fi
-        [ -n "$JAVAPATH" ] && export JAVA_HOME=$(cd $(dirname $(dirname "$JAVAPATH")) && pwd)
-      fi
-    - |
-      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
-        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java /usr/lib/jvm/java-openjdk; do
-          [ -d "$d" ] && export JAVA_HOME="$d" && break
-        done
-      fi
-    - echo "JAVA_HOME=$JAVA_HOME"
-    - java -version || true
-
 build-check:
   stage: validate
-  extends: .install_java_maven
   script:
-    - echo "Проверка сборки проекта"
-    - ./mvnw $MAVEN_CLI_OPTS clean compile
-    - echo "Сборка проекта успешна"
+    - chmod +x mvnw 2>/dev/null || true
+    - |
+      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
+      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
+        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
+      fi
+      echo "JAVA_HOME=$JAVA_HOME"
+      echo "Проверка сборки проекта"
+      ./mvnw $MAVEN_CLI_OPTS clean compile
+      echo "Сборка проекта успешна"
 
 lint-checkstyle:
   stage: validate
-  extends: .install_java_maven
   script:
-    - echo "Проверка синтаксических ошибок линтером"
-    - ./mvnw $MAVEN_CLI_OPTS checkstyle:check
-    - echo "Проверка линтером завершена"
+    - chmod +x mvnw 2>/dev/null || true
+    - |
+      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
+      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
+        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
+      fi
+      echo "JAVA_HOME=$JAVA_HOME"
+      echo "Проверка синтаксических ошибок линтером"
+      ./mvnw $MAVEN_CLI_OPTS checkstyle:check
+      echo "Проверка линтером завершена"
 
 test-execution:
   stage: test
-  extends: .install_java_maven
   script:
-    - echo "Запуск тестов"
-    - ./mvnw $MAVEN_CLI_OPTS test
-    - echo "Все тесты выполнены успешно"
+    - chmod +x mvnw 2>/dev/null || true
+    - |
+      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
+      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
+        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
+      fi
+      echo "JAVA_HOME=$JAVA_HOME"
+      echo "Запуск тестов"
+      ./mvnw $MAVEN_CLI_OPTS test
+      echo "Все тесты выполнены успешно"
 
 config-validation:
   stage: test
-  extends: .install_java_maven
   script:
-    - echo "Проверка валидности конфигурации Spring Boot"
-    - ./mvnw $MAVEN_CLI_OPTS validate
+    - chmod +x mvnw 2>/dev/null || true
     - |
-      if command -v python3 >/dev/null 2>&1; then
-        python3 -c "import yaml; yaml.safe_load(open('src/main/resources/application.yml'))" || true
+      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
+      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
+        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
       fi
-    - echo "Конфигурация Spring Boot валидна"
+      echo "JAVA_HOME=$JAVA_HOME"
+      echo "Проверка валидности конфигурации Spring Boot"
+      ./mvnw $MAVEN_CLI_OPTS validate
+      echo "Конфигурация Spring Boot валидна"
+    - if command -v python3 >/dev/null 2>&1; then python3 -c "import yaml; yaml.safe_load(open('src/main/resources/application.yml'))" || true; fi
