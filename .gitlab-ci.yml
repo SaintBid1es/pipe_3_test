@@ -23,9 +23,6 @@ lint-checkstyle:
     - echo "Проверка синтаксических ошибок линтером"
     - mvn $MAVEN_CLI_OPTS checkstyle:check
     - echo "Проверка линтером завершена"
-  artifacts:
-    reports:
-      checkstyle: target/checkstyle-result.xml
 
 test-execution:
   stage: test
