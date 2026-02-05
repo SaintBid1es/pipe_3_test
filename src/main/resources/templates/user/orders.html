@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои заказы</title>
+    <style>
+        body { font-family: Segoe UI, sans-serif; background:#f8fafc; max-width: 900px; margin:40px auto; padding:20px; }
+        h1 { color:#2563eb; }
+        .order { background:#fff; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:16px; padding:16px; }
+        .order-header { display:flex; justify-content:space-between; margin-bottom:8px; color:#374151; }
+        table { width:100%; border-collapse: collapse; }
+        th, td { padding:8px 6px; border-bottom:1px solid #f1f5f9; text-align:left; }
+        th { color:#6b7280; }
+        .right { text-align:right; font-weight:700; }
+        .muted { color:#6b7280; }
+        .actions { margin-top:12px; display:flex; gap:8px; }
+        .btn { display:inline-block; padding:8px 14px; background:#2563eb; color:#fff; text-decoration:none; border-radius:6px; }
+        .btn.secondary { background:#6b7280; }
+    </style>
+</head>
+<body>
+<h1>Мои заказы</h1>
+
+<div th:if="${#lists.isEmpty(orders)}" class="muted" style="padding:20px; background:#fff; border:1px solid #e5e7eb; border-radius:8px;">
+    Заказы отсутствуют. Перейдите к <a th:href="@{/user/products}">каталогу</a>.
+    </div>
+
+<div th:each="order : ${orders}" class="order">
+    <div class="order-header">
+        <div>Заказ №<span th:text="${order.id}">0</span></div>
+        <div class="muted" th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">дата</div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Товар</th>
+            <th>Цена</th>
+            <th>Кол-во</th>
+            <th class="right">Сумма</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.orderItems}">
+            <td th:text="${item.product.name}">name</td>
+            <td th:text="${#numbers.formatDecimal(item.price,1,'COMMA',2,'POINT')} + ' ₽'">0</td>
+            <td th:text="${item.quantity}">1</td>
+            <td class="right" th:text="${#numbers.formatDecimal(item.subtotal,1,'COMMA',2,'POINT')} + ' ₽'">0</td>
+        </tr>
+        </tbody>
+        </table>
+
+    <div class="right" style="margin-top:8px;">Итого: <span th:text="${#numbers.formatDecimal(order.totalAmount,1,'COMMA',2,'POINT')} + ' ₽'">0</span></div>
+
+    <div class="actions">
+        <a class="btn secondary" th:href="@{/user/products}">К покупкам</a>
+    </div>
+ </div>
+
+<form action="/logout" method="post" style="margin-top: 12px;">
+    <button type="submit" class="btn secondary">Выйти</button>
+    </form>
+
+</body>
+</html>
+
+

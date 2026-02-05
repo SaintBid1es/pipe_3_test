@@ -1,0 +1,95 @@
+spring:
+  config:
+    name: practypdb
+  datasource:
+    url: jdbc:postgresql://localhost:5432/6pr
+    username: postgres
+    password: 1
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  task:
+    execution:
+      pool:
+        core-size: 10
+        max-size: 20
+        queue-capacity: 100
+      thread-name-prefix: practyp-async-
+
+server:
+  port: 8888
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        max-age: 1800s
+
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationInSpringBootApplicationWithMinimum256BitsLengthForHS256Algorithm
+  expiration: 86400000
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    com.mpt.practyp: DEBUG
+    com.mpt.practyp.config: INFO
+    io.micrometer: DEBUG
+    io.micrometer.influx: DEBUG  
+    org.springframework.boot.actuate.metrics.export.influx: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+   
+  metrics:
+    export:
+      influx:
+        enabled: false  
+        uri: http://localhost:8086
+        org: Rostelecom
+        bucket: metrics
+        token: pvR4lp9hRvZad1ly_JJOhyyZFNlrkwCtpLpXuCONGT84fe2v_8VlASNmmiJOAF6qDE6XFq6L6mLlz5VoGhepgw==
+    tags:
+      application: ${spring.config.name}
+      environment: development
+      instance: local
+    enable:
+      jvm: true
+      process: true
+      system: true
+      http: true
+      all: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true
+  observations:
+    key-values:
+      instance: local
+  server:
+    port: ${server.port}

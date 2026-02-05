@@ -1,0 +1,86 @@
+{
+  "title": "Application Metrics Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "HTTP Requests per Second",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count[5m])) by (status, outcome)",
+          "legendFormat": "{{status}} {{outcome}}"
+        }
+      ],
+      "id": 1,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "type": "graph",
+      "title": "HTTP 95th Percentile Latency",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ],
+      "yaxes": [
+        { "format": "s" },
+        { "format": "s" }
+      ],
+      "id": 2,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "type": "graph",
+      "title": "JVM Heap Used",
+      "targets": [
+        {
+          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"})",
+          "legendFormat": "heap used"
+        }
+      ],
+      "yaxes": [
+        { "format": "bytes" },
+        { "format": "bytes" }
+      ],
+      "id": 3,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+    },
+    {
+      "type": "stat",
+      "title": "Products in DB",
+      "targets": [
+        { "expr": "app_db_products_total" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "id": 4,
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 8 }
+    },
+    {
+      "type": "stat",
+      "title": "Customers in DB",
+      "targets": [
+        { "expr": "app_db_customers_total" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "id": 5,
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 8 }
+    },
+    {
+      "type": "stat",
+      "title": "Orders in DB",
+      "targets": [
+        { "expr": "app_db_orders_total" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "id": 6,
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 8 }
+    }
+  ],
+  "templating": { "list": [] }
+}
+
+

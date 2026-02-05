@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Корзина</title>
+    <style>
+        body { font-family: Segoe UI, sans-serif; background:#f8fafc; max-width: 800px; margin:40px auto; padding:20px; }
+        h1 { color:#2563eb; }
+        table { width:100%; border-collapse: collapse; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+        th, td { padding:12px 10px; border-bottom:1px solid #e5e7eb; text-align:left; }
+        th { background:#eff6ff; }
+        .qty { width:70px; }
+        .right { text-align:right; }
+        .actions { display:flex; gap:8px; }
+        .btn { display:inline-block; padding:10px 16px; background:#2563eb; color:#fff; text-decoration:none; border-radius:6px; }
+        .btn.secondary { background:#6b7280; }
+        .btn.danger { background:#dc2626; }
+        .total { margin-top:20px; text-align:right; font-weight:700; }
+    </style>
+    <meta name="csrf" th:content="${_csrf?.token}">
+    <meta name="csrf_header" th:content="${_csrf?.headerName}">
+    <script>
+        // Optional: attach CSRF if enabled in future
+    </script>
+    </head>
+<body>
+<h1>Корзина</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Товар</th>
+        <th>Цена</th>
+        <th>Кол-во</th>
+        <th class="right">Сумма</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${items}">
+        <td th:text="${item.name}">Название</td>
+        <td th:text="${#numbers.formatDecimal(item.price,1,'COMMA',2,'POINT')} + ' ₽'">0</td>
+        <td>
+            <form th:action="@{/user/cart/update}" method="post" class="actions">
+                <input type="hidden" name="productId" th:value="${item.productId}">
+                <input class="qty" type="number" min="1" name="quantity" th:value="${item.quantity}">
+                <button class="btn secondary" type="submit">Обновить</button>
+            </form>
+        </td>
+        <td class="right" th:text="${#numbers.formatDecimal(item.subtotal,1,'COMMA',2,'POINT')} + ' ₽'">0</td>
+        <td>
+            <form th:action="@{/user/cart/remove}" method="post">
+                <input type="hidden" name="productId" th:value="${item.productId}">
+                <button class="btn danger" type="submit">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(items)}">
+        <td colspan="5" style="text-align:center; padding:30px; color:#6b7280;">Корзина пуста</td>
+    </tr>
+    </tbody>
+    </table>
+
+<div class="total">Итого: <span th:text="${#numbers.formatDecimal(total,1,'COMMA',2,'POINT')} + ' ₽'">0</span></div>
+
+<div style="margin-top:16px; display:flex; gap:8px;">
+    <a class="btn secondary" th:href="@{/user/products}">Продолжить покупки</a>
+    <a class="btn secondary" th:href="@{/user/orders}">История заказов</a>
+    <form th:if="${!#lists.isEmpty(items)}" th:action="@{/user/checkout}" method="post">
+        <button class="btn" type="submit">Оформить заказ</button>
+    </form>
+    <a class="btn secondary" th:href="@{/user/orders}">Мои заказы</a>
+ </div>
+
+<form action="/logout" method="post" style="margin-top: 12px;">
+    <button type="submit" class="btn danger">Выйти</button>
+    </form>
+
+</body>
+</html>
+
+

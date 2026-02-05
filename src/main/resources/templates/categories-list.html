@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Виды спорта — категории</title>
+    <style>
+        :root {
+          --primary: #007bff;
+          --primary-dark: #0056b3;
+          --danger: #dc3545;
+          --success: #28a745;
+          --warning: #ffa500;
+          --info: #17a2b8;
+          --bg-light: #f9f9f9;
+          --card-bg: #fff;
+          --text-dark: #333;
+          --border-light: #e9ecef;
+          --shadow: 0 2px 10px rgba(0,0,0,0.08);
+          --radius: 10px;
+        }
+
+        body {
+          background: var(--bg-light);
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 40px 0;
+          color: var(--text-dark);
+        }
+
+        .container {
+          max-width: 900px;
+          margin: auto;
+          background: var(--card-bg);
+          padding: 30px;
+          border-radius: var(--radius);
+          box-shadow: var(--shadow);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .actions {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+          background: var(--primary);
+          color: #fff;
+          padding: 10px 20px;
+          border: none;
+          border-radius: var(--radius);
+          text-decoration: none;
+          font-weight: 600;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          transition: all 0.3s ease;
+        }
+        .button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .danger { background: var(--danger); }
+        .danger:hover { background: #a8232f; }
+
+        .success { background: var(--success); }
+        .success:hover { background: #207435; }
+
+        .warning { background: var(--warning); }
+        .warning:hover { background: #e59400; }
+
+        .info { background: var(--info); }
+        .info:hover { background: #138496; }
+
+        form.filter-form {
+          margin-bottom: 20px;
+          display: flex;
+          gap: 15px;
+          align-items: flex-end;
+          flex-wrap: wrap;
+          padding: 20px;
+          background: #f8f9fa;
+          border-radius: var(--radius);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input[type="text"] {
+          padding: 10px 12px;
+          border: 1px solid var(--border-light);
+          border-radius: 6px;
+          font-size: 1rem;
+          min-width: 250px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button[type="submit"] {
+          background: var(--primary);
+          border: none;
+          color: #fff;
+          font-weight: 600;
+          padding: 10px 20px;
+          border-radius: var(--radius);
+          cursor: pointer;
+          transition: background 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        button[type="submit"]:hover { background: var(--primary-dark); }
+
+        table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0;
+          background: var(--card-bg);
+          border-radius: var(--radius);
+          box-shadow: var(--shadow);
+          font-size: 1rem;
+          margin-top: 12px;
+          overflow: hidden;
+        }
+
+        thead th {
+          background: #eef2fa;
+          color: var(--text-dark);
+          padding: 15px 12px;
+          border-bottom: 2px solid var(--border-light);
+          font-weight: 700;
+          text-align: left;
+        }
+
+        thead th a {
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        thead th a:hover {
+            color: var(--primary);
+        }
+
+        tbody td {
+          border-bottom: 1px solid var(--border-light);
+          padding: 12px 10px;
+        }
+
+        tr.deleted {
+          background: #fff5f5;
+          color: #666;
+        }
+        tr.deleted td {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .actions-col {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .actions-col form,
+        .actions-col a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .actions-col form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .pagination {
+          margin-top: 30px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 15px;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .pagination-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pagination a {
+          text-decoration: none;
+          padding: 8px 16px;
+          border: 1px solid var(--border-light);
+          border-radius: 6px;
+          color: var(--primary-dark);
+          background: var(--card-bg);
+          transition: all 0.3s ease;
+          font-weight: 500;
+        }
+        .pagination a:hover,
+        .pagination a.active {
+          background: var(--primary);
+          color: #fff;
+          border-color: var(--primary);
+        }
+
+        .stats {
+            background: #e8f4fd;
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        Виды спорта / Категории
+    </h1>
+
+    <div class="stats" th:if="${categoryPage}">
+        <div class="stat-item">
+            <span class="stat-value" th:text="${categoryPage.totalElements}">0</span>
+            <span class="stat-label">Всего категорий</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" th:text="${categoryPage.number + 1}">1</span>
+            <span class="stat-label">Текущая страница</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" th:text="${categoryPage.totalPages}">1</span>
+            <span class="stat-label">Всего страниц</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{${#authorization.expression('hasRole(''ROLE_ADMIN'')') ? '/' : '/manager/dashboard'}}" class="button">
+            <i>←</i>
+            <span th:text="${#authorization.expression('hasRole(''ROLE_ADMIN'')') ? 'В админ-панель' : 'В панель менеджера'}"></span>
+        </a>
+        <a href="/categories/new" class="button success">
+            <i>+</i> Добавить вид спорта/категорию
+        </a>
+    </div>
+
+    <form class="filter-form" method="get" action="/categories/list">
+        <div class="form-group">
+            <label for="search">Поиск по виду спорта:</label>
+            <input type="text" id="search" name="search" th:value="${search}"
+                   placeholder="Футбол, Баскетбол, Бег, Туризм...">
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="showDeleted" name="showDeleted" th:checked="${showDeleted}">
+            <label for="showDeleted">Показывать удалённые</label>
+        </div>
+
+        <button type="submit">
+            Применить фильтры
+        </button>
+
+        <a th:href="@{/categories/list}" class="button" style="background: #6c757d;">
+            Сбросить
+        </a>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>
+                <a th:href="@{/categories/list(sort='id', dir=${sort=='id' && dir=='asc' ? 'desc' : 'asc'}, search=${search}, showDeleted=${showDeleted})}">
+                    ID <i th:text="${sort=='id' ? (dir=='asc' ? '↑' : '↓') : ''}"></i>
+                </a>
+            </th>
+            <th>
+                <a th:href="@{/categories/list(sort='name', dir=${sort=='name' && dir=='asc' ? 'desc' : 'asc'}, search=${search}, showDeleted=${showDeleted})}">
+                    Название <i th:text="${sort=='name' ? (dir=='asc' ? '↑' : '↓') : ''}"></i>
+                </a>
+            </th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cat : ${categoryPage.content}" th:classappend="${cat.deleted} ? 'deleted' : ''">
+            <td th:text="${cat.id}"></td>
+            <td th:text="${cat.name}"></td>
+            <td class="actions-col">
+                <a th:href="@{/categories/edit/{id}(id=${cat.id})}" class="button warning"
+                   th:if="${!cat.deleted}">
+                    Редактировать
+                </a>
+
+                <form th:action="@{/categories/delete}" method="post">
+                    <input type="hidden" name="id" th:value="${cat.id}" />
+                    <div class="checkbox-group" th:if="${!cat.deleted}">
+                        <input type="checkbox" id="soft_${cat.id}" name="soft" checked>
+                        <label for="soft_${cat.id}">Логическое удаление</label>
+                    </div>
+                    <button class="button danger" type="submit" th:text="${cat.deleted ? 'Удалить навсегда' : 'Удалить'}">
+                        Удалить
+                    </button>
+                </form>
+
+                <form th:if="${cat.deleted}" th:action="@{/categories/restore}" method="post">
+                    <input type="hidden" name="id" th:value="${cat.id}" />
+                    <button class="button success" type="submit">
+                        <i>↶</i> Восстановить
+                    </button>
+                </form>
+            </td>
+        </tr>
+
+        <tr th:if="${categoryPage.content.empty}">
+            <td colspan="3" style="text-align: center; padding: 40px; color: #666;">
+                <i>📝</i> Категории не найдены
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <div class="pagination-info">
+            Показано <span th:text="${categoryPage.numberOfElements}">0</span> из
+            <span th:text="${categoryPage.totalElements}">0</span> категорий
+        </div>
+
+        <div class="pagination-links">
+            <a th:if="${categoryPage.hasPrevious()}"
+               th:href="@{/categories/list(page=0, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                <i>⟪</i> Первая
+            </a>
+
+            <a th:if="${categoryPage.hasPrevious()}"
+               th:href="@{/categories/list(page=${categoryPage.number - 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                <i>←</i> Назад
+            </a>
+
+            <span th:each="page : ${#numbers.sequence(0, categoryPage.totalPages - 1)}"
+                  th:if="${page >= categoryPage.number - 2 && page <= categoryPage.number + 2}">
+                <a th:href="@{/categories/list(page=${page}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+                   th:classappend="${page == categoryPage.number} ? 'active' : ''"
+                   th:text="${page + 1}">1</a>
+            </span>
+
+            <a th:if="${categoryPage.hasNext()}"
+               th:href="@{/categories/list(page=${categoryPage.number + 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                Вперед <i>→</i>
+            </a>
+
+            <a th:if="${categoryPage.hasNext()}"
+               th:href="@{/categories/list(page=${categoryPage.totalPages - 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                Последняя <i>⟫</i>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

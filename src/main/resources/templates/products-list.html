@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Спортивные товары — каталог</title>
+  <style>
+    :root {
+      --primary: #007bff;
+      --primary-dark: #0056b3;
+      --danger: #dc3545;
+      --success: #28a745;
+      --warning: #ffa500;
+      --bg-light: #f9f9f9;
+      --card-bg: #fff;
+      --text-dark: #333;
+      --border-light: #e9ecef;
+      --shadow: 0 2px 10px rgba(0,0,0,0.08);
+      --radius: 10px;
+    }
+
+    body {
+      background: var(--bg-light);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 40px 0;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+        color: var(--primary);
+        font-size: 2rem;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .actions {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .button {
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+    }
+    .button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .danger { background: var(--danger); }
+    .danger:hover { background: #a8232f; }
+
+    .success { background: var(--success); }
+    .success:hover { background: #207435; }
+
+    .warning { background: var(--warning); }
+    .warning:hover { background: #e59400; }
+
+    form.filter-form {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 15px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: var(--radius);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    input[type="text"], select {
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      font-size: 1rem;
+      min-width: 200px;
+      background: white;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    button[type="submit"] {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button[type="submit"]:hover { background: var(--primary-dark); }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-size: 1rem;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    thead th {
+      background: #eef2fa;
+      color: var(--text-dark);
+      padding: 15px 12px;
+      border-bottom: 2px solid var(--border-light);
+      font-weight: 700;
+      text-align: left;
+    }
+
+    thead th a {
+        color: inherit;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    thead th a:hover {
+        color: var(--primary);
+    }
+
+    tbody td {
+      border-bottom: 1px solid var(--border-light);
+      padding: 12px 10px;
+    }
+
+    tr.deleted {
+      background: #fff5f5;
+      color: #666;
+    }
+    tr.deleted td {
+        text-decoration: line-through;
+        opacity: 0.7;
+    }
+
+    .actions-col {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .actions-col form,
+    .actions-col a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .actions-col form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .tag {
+        display: inline-block;
+        background: #e4ecfa;
+        color: var(--primary-dark);
+        padding: 4px 8px;
+        border-radius: 12px;
+        margin: 2px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .category-badge {
+        background: #e8f5e8;
+        color: var(--success);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .price {
+        font-weight: 700;
+        color: var(--success);
+    }
+
+    .description {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .pagination {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .pagination-info {
+        color: #666;
+        font-weight: 500;
+    }
+
+    .pagination-links {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .pagination a {
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      color: var(--primary-dark);
+      background: var(--card-bg);
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    .pagination a:hover,
+    .pagination a.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .stats {
+        background: #e8f4fd;
+        padding: 15px 20px;
+        border-radius: var(--radius);
+        margin-bottom: 20px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>
+    Каталог спортивных товаров
+  </h1>
+
+  <div class="stats" th:if="${productPage}">
+    <div class="stat-item">
+      <span class="stat-value" th:text="${productPage.totalElements}">0</span>
+      <span class="stat-label">Всего товаров</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" th:text="${productPage.number + 1}">1</span>
+      <span class="stat-label">Текущая страница</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" th:text="${productPage.totalPages}">1</span>
+      <span class="stat-label">Всего страниц</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a th:href="@{${#authorization.expression('hasRole(''ROLE_ADMIN'')') ? '/' : '/manager/dashboard'}}" class="button">
+      <i>←</i>
+      <span th:text="${#authorization.expression('hasRole(''ROLE_ADMIN'')') ? 'В админ-панель' : 'В панель менеджера'}"></span>
+    </a>
+    <a href="/products/new" class="button success">
+      <i>+</i> Добавить спортивный товар
+    </a>
+  </div>
+
+  <form class="filter-form" method="get" action="/products/list">
+    <div class="form-group">
+      <label for="search">Поиск по названию:</label>
+      <input type="text" id="search" name="search" th:value="${search}"
+             placeholder="Введите название спортивного товара (мяч, кроссовки)...">
+    </div>
+
+    <div class="form-group">
+      <label for="categoryId">Вид спорта/категория:</label>
+      <select id="categoryId" name="categoryId">
+        <option value="">Все категории</option>
+        <option th:each="cat : ${categories}"
+                th:value="${cat.id}"
+                th:text="${cat.name}"
+                th:selected="${categoryId == cat.id}"></option>
+      </select>
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="showDeleted" name="showDeleted" th:checked="${showDeleted}">
+      <label for="showDeleted">Показывать удалённые</label>
+    </div>
+
+    <button type="submit">
+      Применить фильтры
+    </button>
+
+    <a th:href="@{/products/list}" class="button" style="background: #6c757d;">
+      Сбросить
+    </a>
+  </form>
+
+  <table>
+    <thead>
+    <tr>
+      <th>
+        <a th:href="@{/products/list(sort='id', dir=${sort=='id' && dir=='asc' ? 'desc' : 'asc'}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}">
+          ID <i th:text="${sort=='id' ? (dir=='asc' ? '↑' : '↓') : ''}"></i>
+        </a>
+      </th>
+      <th>
+        <a th:href="@{/products/list(sort='name', dir=${sort=='name' && dir=='asc' ? 'desc' : 'asc'}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}">
+          Название <i th:text="${sort=='name' ? (dir=='asc' ? '↑' : '↓') : ''}"></i>
+        </a>
+      </th>
+      <th>Описание</th>
+      <th>
+        <a th:href="@{/products/list(sort='price', dir=${sort=='price' && dir=='asc' ? 'desc' : 'asc'}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}">
+          Цена <i th:text="${sort=='price' ? (dir=='asc' ? '↑' : '↓') : ''}"></i>
+        </a>
+      </th>
+      <th>Вид спорта</th>
+      <th>Теги (экипировка)</th>
+      <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${productPage.content}" th:classappend="${product.deleted} ? 'deleted' : ''">
+      <td th:text="${product.id}"></td>
+      <td th:text="${product.name}"></td>
+      <td class="description" th:text="${product.description}"></td>
+      <td class="price" th:text="${'₽' + product.price}"></td>
+      <td>
+        <span th:if="${product.category}" class="category-badge" th:text="${product.category.name}"></span>
+        <span th:unless="${product.category}" style="color: #999;">—</span>
+      </td>
+      <td>
+        <span th:each="tag : ${product.tags}" class="tag" th:text="${tag.name}"></span>
+        <span th:if="${product.tags.empty}" style="color: #999;">—</span>
+      </td>
+      <td class="actions-col">
+        <a th:href="@{/products/edit/{id}(id=${product.id})}" class="button warning"
+           th:if="${!product.deleted}">
+          Редактировать
+        </a>
+
+        <form th:action="@{/products/delete}" method="post">
+          <input type="hidden" name="id" th:value="${product.id}" />
+          <div class="checkbox-group" th:if="${!product.deleted}">
+            <input type="checkbox" id="soft_${product.id}" name="soft" checked>
+            <label for="soft_${product.id}">Логическое удаление</label>
+          </div>
+          <button class="button danger" type="submit" th:text="${product.deleted ? 'Удалить навсегда' : 'Удалить'}">
+            Удалить
+          </button>
+        </form>
+
+        <form th:if="${product.deleted}" th:action="@{/products/restore}" method="post">
+          <input type="hidden" name="id" th:value="${product.id}" />
+          <button class="button success" type="submit">
+            <i>↶</i> Восстановить
+          </button>
+        </form>
+      </td>
+    </tr>
+
+    <tr th:if="${productPage.content.empty}">
+      <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+        <i>🏀</i> Товары не найдены. Попробуйте изменить фильтры
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <div class="pagination-info">
+      Показано <span th:text="${productPage.numberOfElements}">0</span> из
+      <span th:text="${productPage.totalElements}">0</span> товаров
+    </div>
+
+    <div class="pagination-links">
+      <a th:if="${productPage.hasPrevious()}"
+         th:href="@{/products/list(page=0, size=${size}, sort=${sort}, dir=${dir}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}"
+         class="button">
+        <i>⟪</i> Первая
+      </a>
+
+      <a th:if="${productPage.hasPrevious()}"
+         th:href="@{/products/list(page=${productPage.number - 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}"
+         class="button">
+        <i>←</i> Назад
+      </a>
+
+      <span th:each="page : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+            th:if="${page >= productPage.number - 2 && page <= productPage.number + 2}">
+                <a th:href="@{/products/list(page=${page}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}"
+                   th:classappend="${page == productPage.number} ? 'active' : ''"
+                   th:text="${page + 1}">1</a>
+            </span>
+
+      <a th:if="${productPage.hasNext()}"
+         th:href="@{/products/list(page=${productPage.number + 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}"
+         class="button">
+        Вперед <i>→</i>
+      </a>
+
+      <a th:if="${productPage.hasNext()}"
+         th:href="@{/products/list(page=${productPage.totalPages - 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, categoryId=${categoryId}, showDeleted=${showDeleted})}"
+         class="button">
+        Последняя <i>⟫</i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const deleteForms = document.querySelectorAll('form[action*="delete"]');
+      deleteForms.forEach(form => {
+          form.addEventListener('submit', function(e) {
+              const isSoftDelete = this.querySelector('input[name="soft"]')?.checked;
+              const message = isSoftDelete ?
+                  'Вы уверены, что хотите удалить продукт?' :
+                  'Вы уверены, что хотите удалить продукт навсегда? Это действие нельзя отменить!';
+
+              if (!confirm(message)) {
+                  e.preventDefault();
+              }
+          });
+      });
+  });
+</script>
+</body>
+</html>

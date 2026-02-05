@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление ролями</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+<div class="container py-4">
+    <h2 class="mb-4">Роли пользователей</h2>
+    <div class="mb-3">
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">Назад к дашборду</a>
+        <a th:href="@{/admin/export/customers.csv}" class="btn btn-outline-info">Скачать CSV пользователей</a>
+    </div>
+
+    <table class="table table-dark table-striped align-middle">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Логин</th>
+            <th>Email</th>
+            <th>ФИО</th>
+            <th>Роли</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${users}">
+            <td th:text="${u.id}">1</td>
+            <td th:text="${u.username}">user</td>
+            <td th:text="${u.email}">email</td>
+            <td th:text="${u.firstName + ' ' + u.lastName}">ФИО</td>
+            <td>
+                <span th:each="r : ${u.roles}" class="badge bg-primary me-1" th:text="${r.name}">ROLE</span>
+            </td>
+            <td>
+                <form th:action="@{'/admin/roles/' + ${u.id} + '/grant'}" method="post" class="d-inline">
+                    <select name="role" class="form-select d-inline w-auto">
+                        <option th:each="r : ${roles}" th:value="${r.name}" th:text="${r.name}">ROLE</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="MANAGER">MANAGER</option>
+                        <option value="USER">USER</option>
+                    </select>
+                    <button class="btn btn-success btn-sm ms-1" type="submit">Выдать</button>
+                </form>
+
+                <form th:action="@{'/admin/roles/' + ${u.id} + '/revoke'}" method="post" class="d-inline ms-2">
+                    <input class="form-control d-inline w-auto" name="role" placeholder="Название роли"/>
+                    <button class="btn btn-warning btn-sm ms-1" type="submit">Забрать</button>
+                </form>
+
+                <form th:action="@{'/admin/users/' + ${u.id} + '/restore'}" method="post" class="d-inline ms-2">
+                    <button class="btn btn-outline-light btn-sm" type="submit">Восстановить</button>
+                </form>
+                <form th:action="@{'/admin/users/' + ${u.id} + '/hard-delete'}" method="post" class="d-inline ms-2" onsubmit="return confirm('Удалить безвозвратно?')">
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить навсегда</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+<html>
+
+

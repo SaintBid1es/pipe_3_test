@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Список товаров</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            color: #2c3e50;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+        }
+        h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: white;
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        span[th\\:text] {
+            font-weight: 600;
+            color: #2980b9;
+        }
+        a, button {
+            display: block;
+            margin: 40px auto 0;
+            width: max-content;
+            padding: 10px 22px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgb(52 152 219 / 0.4);
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        a:hover, button:hover {
+            background-color: #2980b9;
+        }
+        form.add-to-cart { margin: 0; }
+        form.add-to-cart button { margin: 0; padding: 8px 14px; box-shadow: none; }
+    </style>
+</head>
+<body>
+<h1>Список товаров</h1>
+
+<ul>
+    <li th:each="product : ${products}">
+        <span th:text="${product.name}">Product Name</span>
+        <span th:text="${#numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')} + ' ₽'">Price</span>
+        <form class="add-to-cart" th:action="@{/user/cart/add}" method="post">
+            <input type="hidden" name="productId" th:value="${product.id}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit">В корзину</button>
+        </form>
+    </li>
+</ul>
+
+<a href="/user/orders">История заказов</a>
+<a href="/user/cart">Перейти в корзину</a>
+<form action="/logout" method="post" style="margin-top: 12px; text-align: center;">
+    <button type="submit" style="padding: 10px 20px; border: none; border-radius: 6px; background: #dc3545; color: #fff; font-weight: 600; cursor: pointer;">Выйти</button>
+    </form>
+<a href="/user/profile">Мой профиль</a>
+</body>
+</html>

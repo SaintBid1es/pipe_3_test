@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список профилей</title>
+    <style>
+        :root {
+          --primary: #007bff;
+          --primary-dark: #0056b3;
+          --danger: #dc3545;
+          --success: #28a745;
+          --warning: #ffa500;
+          --bg-light: #f9f9f9;
+          --card-bg: #fff;
+          --text-dark: #333;
+          --border-light: #e9ecef;
+          --shadow: 0 2px 10px rgba(0,0,0,0.08);
+          --radius: 10px;
+        }
+
+        body {
+          background: var(--bg-light);
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 40px 0;
+          color: var(--text-dark);
+        }
+
+        .container {
+          max-width: 1000px;
+          margin: auto;
+          background: var(--card-bg);
+          padding: 30px;
+          border-radius: var(--radius);
+          box-shadow: var(--shadow);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .actions {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+          background: var(--primary);
+          color: #fff;
+          padding: 10px 20px;
+          border: none;
+          border-radius: var(--radius);
+          text-decoration: none;
+          font-weight: 600;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          transition: all 0.3s ease;
+        }
+        .button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .danger { background: var(--danger); }
+        .danger:hover { background: #a8232f; }
+
+        .success { background: var(--success); }
+        .success:hover { background: #207435; }
+
+        .warning { background: var(--warning); }
+        .warning:hover { background: #e59400; }
+
+        form.filter-form {
+          margin-bottom: 20px;
+          display: flex;
+          gap: 15px;
+          align-items: flex-end;
+          flex-wrap: wrap;
+          padding: 20px;
+          background: #f8f9fa;
+          border-radius: var(--radius);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input[type="text"] {
+          padding: 10px 12px;
+          border: 1px solid var(--border-light);
+          border-radius: 6px;
+          font-size: 1rem;
+          min-width: 250px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button[type="submit"] {
+          background: var(--primary);
+          border: none;
+          color: #fff;
+          font-weight: 600;
+          padding: 10px 20px;
+          border-radius: var(--radius);
+          cursor: pointer;
+          transition: background 0.3s ease;
+        }
+        button[type="submit"]:hover { background: var(--primary-dark); }
+
+        table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0;
+          background: var(--card-bg);
+          border-radius: var(--radius);
+          box-shadow: var(--shadow);
+          font-size: 1rem;
+          margin-top: 12px;
+          overflow: hidden;
+        }
+
+        thead th {
+          background: #eef2fa;
+          color: var(--text-dark);
+          padding: 15px 12px;
+          border-bottom: 2px solid var(--border-light);
+          font-weight: 700;
+          text-align: left;
+        }
+
+        thead th a {
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        thead th a:hover {
+            color: var(--primary);
+        }
+
+        tbody td {
+          border-bottom: 1px solid var(--border-light);
+          padding: 12px 10px;
+        }
+
+        tr.deleted {
+          background: #fff5f5;
+          color: #666;
+        }
+        tr.deleted td {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .actions-col {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .actions-col form,
+        .actions-col a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .actions-col form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .customer-email {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .address {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pagination {
+          margin-top: 30px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 15px;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .pagination-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pagination a {
+          text-decoration: none;
+          padding: 8px 16px;
+          border: 1px solid var(--border-light);
+          border-radius: 6px;
+          color: var(--primary-dark);
+          background: var(--card-bg);
+          transition: all 0.3s ease;
+          font-weight: 500;
+        }
+        .pagination a:hover,
+        .pagination a.active {
+          background: var(--primary);
+          color: #fff;
+          border-color: var(--primary);
+        }
+
+        .stats {
+            background: #e8f4fd;
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .no-customer {
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        Список профилей
+    </h1>
+
+    <div class="stats" th:if="${profilePage}">
+        <div class="stat-item">
+            <span class="stat-value" th:text="${profilePage.totalElements}">0</span>
+            <span class="stat-label">Всего профилей</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" th:text="${profilePage.number + 1}">1</span>
+            <span class="stat-label">Текущая страница</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" th:text="${profilePage.totalPages}">1</span>
+            <span class="stat-label">Всего страниц</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{/}" class="button">
+            <i>←</i> Назад в панель
+        </a>
+        <a href="/profiles/new" class="button success">
+            <i>+</i> Добавить профиль
+        </a>
+    </div>
+
+    <form class="filter-form" method="get" action="/profiles/list">
+        <div class="form-group">
+            <label for="search">Поиск по адресу:</label>
+            <input type="text" id="search" name="search" th:value="${search}"
+                   placeholder="Введите адрес...">
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="showDeleted" name="showDeleted" th:checked="${showDeleted}">
+            <label for="showDeleted">Показывать удалённые</label>
+        </div>
+
+        <button type="submit">
+            Применить фильтры
+        </button>
+
+        <a th:href="@{/profiles/list}" class="button" style="background: #6c757d;">
+            Сбросить
+        </a>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>
+                <a th:href="@{/profiles/list(sort='id', dir=${sort=='id' && dir=='asc' ? 'desc' : 'asc'}, search=${search}, showDeleted=${showDeleted})}">
+                    ID <i th:text="${sort=='id' ? (dir=='asc' ? '↑' : '↓') : ''}"></i>
+                </a>
+            </th>
+            <th>Пользователь</th>
+            <th>
+                <a th:href="@{/profiles/list(sort='address', dir=${sort=='address' && dir=='asc' ? 'desc' : 'asc'}, search=${search}, showDeleted=${showDeleted})}">
+                    Адрес <i th:text="${sort=='address' ? (dir=='asc' ? '↑' : '↓') : ''}"></i>
+                </a>
+            </th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="profile : ${profilePage.content}" th:classappend="${profile.deleted} ? 'deleted' : ''">
+            <td th:text="${profile.id}"></td>
+            <td>
+                <div class="customer-info" th:if="${profile.customer}">
+                    <span class="customer-name" th:text="${profile.customer.firstName + ' ' + profile.customer.lastName}"></span>
+                    <span class="customer-email" th:text="${profile.customer.email}"></span>
+                    <small th:text="${'@' + profile.customer.username}"></small>
+                </div>
+                <span th:unless="${profile.customer}" class="no-customer">Пользователь не привязан</span>
+            </td>
+            <td class="address" th:text="${profile.address} ?: 'Адрес не указан'"></td>
+            <td class="actions-col">
+                <a th:href="@{/profiles/edit/{id}(id=${profile.id})}" class="button warning"
+                   th:if="${!profile.deleted}">
+                    Редактировать
+                </a>
+
+                <form th:action="@{/profiles/delete}" method="post">
+                    <input type="hidden" name="id" th:value="${profile.id}" />
+                    <div class="checkbox-group" th:if="${!profile.deleted}">
+                        <input type="checkbox" id="soft_${profile.id}" name="soft" checked>
+                        <label for="soft_${profile.id}">Логическое удаление</label>
+                    </div>
+                    <button class="button danger" type="submit" th:text="${profile.deleted ? 'Удалить навсегда' : 'Удалить'}">
+                        Удалить
+                    </button>
+                </form>
+
+                <form th:if="${profile.deleted}" th:action="@{/profiles/restore}" method="post">
+                    <input type="hidden" name="id" th:value="${profile.id}" />
+                    <button class="button success" type="submit">
+                        <i>↶</i> Восстановить
+                    </button>
+                </form>
+            </td>
+        </tr>
+
+        <tr th:if="${profilePage.content.empty}">
+            <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                <i>📝</i> Профили не найдены
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <div class="pagination-info">
+            Показано <span th:text="${profilePage.numberOfElements}">0</span> из
+            <span th:text="${profilePage.totalElements}">0</span> профилей
+        </div>
+
+        <div class="pagination-links">
+            <a th:if="${profilePage.hasPrevious()}"
+               th:href="@{/profiles/list(page=0, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                <i>⟪</i> Первая
+            </a>
+
+            <a th:if="${profilePage.hasPrevious()}"
+               th:href="@{/profiles/list(page=${profilePage.number - 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                <i>←</i> Назад
+            </a>
+
+            <span th:each="page : ${#numbers.sequence(0, profilePage.totalPages - 1)}"
+                  th:if="${page >= profilePage.number - 2 && page <= profilePage.number + 2}">
+                <a th:href="@{/profiles/list(page=${page}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+                   th:classappend="${page == profilePage.number} ? 'active' : ''"
+                   th:text="${page + 1}">1</a>
+            </span>
+
+            <a th:if="${profilePage.hasNext()}"
+               th:href="@{/profiles/list(page=${profilePage.number + 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                Вперед <i>→</i>
+            </a>
+
+            <a th:if="${profilePage.hasNext()}"
+               th:href="@{/profiles/list(page=${profilePage.totalPages - 1}, size=${size}, sort=${sort}, dir=${dir}, search=${search}, showDeleted=${showDeleted})}"
+               class="button">
+                Последняя <i>⟫</i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteForms = document.querySelectorAll('form[action*="delete"]');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const isSoftDelete = this.querySelector('input[name="soft"]')?.checked;
+                const message = isSoftDelete ?
+                    'Вы уверены, что хотите удалить профиль?' :
+                    'Вы уверены, что хотите удалить профиль навсегда? Это действие нельзя отменить!';
+
+                if (!confirm(message)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
