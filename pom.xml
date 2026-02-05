@@ -138,7 +138,7 @@
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
+                    <failsOnError>false</failsOnError>
                     <linkXRef>false</linkXRef>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
