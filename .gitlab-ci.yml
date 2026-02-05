@@ -10,34 +10,33 @@ variables:
 
 build-check:
   stage: validate
-  image: maven:3.9-eclipse-temurin-17
+  before_script:
+    - chmod +x mvnw 2>/dev/null || true
   script:
     - echo "Проверка сборки проекта"
-    - mvn $MAVEN_CLI_OPTS clean compile
+    - ./mvnw $MAVEN_CLI_OPTS clean compile
     - echo "Сборка проекта успешна"
 
 lint-checkstyle:
   stage: validate
-  image: maven:3.9-eclipse-temurin-17
+  before_script:
+    - chmod +x mvnw 2>/dev/null || true
   script:
     - echo "Проверка синтаксических ошибок линтером"
-    - mvn $MAVEN_CLI_OPTS checkstyle:check
+    - ./mvnw $MAVEN_CLI_OPTS checkstyle:check
     - echo "Проверка линтером завершена"
 
 test-execution:
   stage: test
-  image: maven:3.9-eclipse-temurin-17
+  before_script:
+    - chmod +x mvnw 2>/dev/null || true
   script:
     - echo "Запуск тестов"
-    - mvn $MAVEN_CLI_OPTS test
+    - ./mvnw $MAVEN_CLI_OPTS test
     - echo "Все тесты выполнены успешно"
-  artifacts:
-    reports:
-      junit: target/surefire-reports/TEST-*.xml
 
 config-validation:
   stage: test
-  image: maven:3.9-eclipse-temurin-17
   services:
     - postgres:15-alpine
   variables:
@@ -46,6 +45,7 @@ config-validation:
     POSTGRES_PASSWORD: postgres
     POSTGRES_HOST_AUTH_METHOD: trust
   before_script:
+    - chmod +x mvnw 2>/dev/null || true
     - apt-get update -qq && apt-get install -y -qq python3 python3-venv python3-pip netcat-openbsd
     - python3 -m venv $VENV_PATH
     - source $VENV_PATH/bin/activate
@@ -53,11 +53,10 @@ config-validation:
     - pip install pyyaml
   script:
     - echo "Проверка валидности конфигурации Spring Boot"
-    - mvn $MAVEN_CLI_OPTS validate
+    - ./mvnw $MAVEN_CLI_OPTS validate
     - source $VENV_PATH/bin/activate
     - python3 -c "import yaml; yaml.safe_load(open('src/main/resources/application.yml'))"
     - echo "Запуск Spring Boot приложения для проверки конфигурации"
-    - mvn $MAVEN_CLI_OPTS spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=test --server.port=8888 --spring.datasource.url=jdbc:postgresql://postgres:5432/test_db --spring.datasource.username=postgres --spring.datasource.password=postgres --spring.jpa.hibernate.ddl-auto=create" &
-    - sleep 20
+    - ./mvnw $MAVEN_CLI_OPTS spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=test --server.port=8888 --spring.datasource.url=jdbc:postgresql://postgres:5432/test_db --spring.datasource.username=postgres --spring.datasource.password=postgres --spring.jpa.hibernate.ddl-auto=create" 
     - nc -z localhost 8888 || exit 1
     - echo "Конфигурация Spring Boot валидна, приложение успешно запущено"
