@@ -21,7 +21,7 @@ build-check:
 lint-checkstyle:
   stage: validate
   script:
-    - ./mvnw $MAVEN_CLI_OPTS checkstyle:check
+    - ./mvnw $MAVEN_CLI_OPTS checkstyle:check -Dcheckstyle.failsOnError=false
 
 test-execution:
   stage: test

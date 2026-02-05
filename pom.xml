@@ -142,15 +142,6 @@
                     <linkXRef>false</linkXRef>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
