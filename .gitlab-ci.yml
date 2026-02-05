@@ -4,64 +4,32 @@ stages:
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
-  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -e"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
   GIT_STRATEGY: clone
-  VENV_PATH: "$CI_PROJECT_DIR/.venv"
 
+default:
+  before_script:
+    - chmod +x mvnw 2>/dev/null || true
+    - export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p') || true
+    - if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done; fi
 
 build-check:
   stage: validate
   script:
-    - chmod +x mvnw 2>/dev/null || true
-    - |
-      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
-      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
-        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
-      fi
-      echo "JAVA_HOME=$JAVA_HOME"
-      echo "Проверка сборки проекта"
-      ./mvnw $MAVEN_CLI_OPTS clean compile
-      echo "Сборка проекта успешна"
+    - ./mvnw $MAVEN_CLI_OPTS clean compile
 
 lint-checkstyle:
   stage: validate
   script:
-    - chmod +x mvnw 2>/dev/null || true
-    - |
-      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
-      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
-        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
-      fi
-      echo "JAVA_HOME=$JAVA_HOME"
-      echo "Проверка синтаксических ошибок линтером"
-      ./mvnw $MAVEN_CLI_OPTS checkstyle:check
-      echo "Проверка линтером завершена"
+    - ./mvnw $MAVEN_CLI_OPTS checkstyle:check
 
 test-execution:
   stage: test
   script:
-    - chmod +x mvnw 2>/dev/null || true
-    - |
-      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
-      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
-        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
-      fi
-      echo "JAVA_HOME=$JAVA_HOME"
-      echo "Запуск тестов"
-      ./mvnw $MAVEN_CLI_OPTS test
-      echo "Все тесты выполнены успешно"
+    - ./mvnw $MAVEN_CLI_OPTS test
 
 config-validation:
   stage: test
   script:
-    - chmod +x mvnw 2>/dev/null || true
-    - |
-      export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p')
-      if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then
-        for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done
-      fi
-      echo "JAVA_HOME=$JAVA_HOME"
-      echo "Проверка валидности конфигурации Spring Boot"
-      ./mvnw $MAVEN_CLI_OPTS validate
-      echo "Конфигурация Spring Boot валидна"
-    - if command -v python3 >/dev/null 2>&1; then python3 -c "import yaml; yaml.safe_load(open('src/main/resources/application.yml'))" || true; fi
+    - ./mvnw $MAVEN_CLI_OPTS validate
+    - python3 -c "import yaml; yaml.safe_load(open('src/main/resources/application.yml'))" || true

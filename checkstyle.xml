@@ -5,16 +5,16 @@
 
 <module name="Checker">
     <property name="charset" value="UTF-8"/>
-    <property name="severity" value="warning"/>
     <property name="fileExtensions" value="java"/>
 
     <module name="FileTabCharacter">
         <property name="eachLine" value="true"/>
     </module>
+    <!-- LineLength только в Checker, не в TreeWalker (Checkstyle 10.x) -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+    </module>
     <module name="TreeWalker">
-        <module name="LineLength">
-            <property name="max" value="120"/>
-        </module>
         <module name="UnusedImports"/>
         <module name="RedundantImport"/>
     </module>
