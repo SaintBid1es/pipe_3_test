@@ -8,6 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class JournalApplicationTests {
 
+    
     @Test
     void contextLoads() {
     }
