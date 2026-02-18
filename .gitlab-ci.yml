@@ -1,43 +1,35 @@
 stages:
   - validate
   - test
-  - build
-  - deploy
 
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+  GIT_STRATEGY: clone
 
-docker-build:
-  stage: build
-  image: docker:24.0
-  services:
-    - docker:24.0-dind
+default:
   before_script:
-    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD" "$DOCKER_REGISTRY"
-  script:
-    - docker build -t "$DOCKER_REGISTRY/my-app:$CI_COMMIT_SHA" .
-    - docker push "$DOCKER_REGISTRY/my-app:$CI_COMMIT_SHA"
- 
+    - chmod +x mvnw 2>/dev/null || true
+    - export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java\.home = *//p') || true
+    - if [ -z "$JAVA_HOME" ] && [ -d /usr/lib/jvm ]; then for d in /usr/lib/jvm/java-17* /usr/lib/jvm/default-java; do [ -d "$d" ] && export JAVA_HOME="$d" && break; done; fi
 
-
-deploy-server:
-  stage: deploy
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
+build-check:
+  stage: validate
   script:
-    - ssh "$SSH_USER@$SSH_HOST" "
-        docker login -u '$DOCKER_USER' -p '$DOCKER_PASSWORD' '$DOCKER_REGISTRY' &&
-        docker pull '$DOCKER_REGISTRY/my-app:$CI_COMMIT_SHA' &&
-        docker stop my-app || true &&
-        docker rm my-app || true &&
-        docker run -d --name my-app -p 8080:8080 '$DOCKER_REGISTRY/my-app:$CI_COMMIT_SHA'
-      "
-  environment:
-    name: production
-    url: http://localhost:8080  
- 
+    - ./mvnw $MAVEN_CLI_OPTS clean compile
+
+lint-checkstyle:
+  stage: validate
+  script:
+    - ./mvnw $MAVEN_CLI_OPTS checkstyle:checkstyle
+
+test-execution:
+  stage: test
+  script:
+    - ./mvnw $MAVEN_CLI_OPTS test
+
+config-validation:
+  stage: test
+  script:
+    - ./mvnw $MAVEN_CLI_OPTS validate
+    - python3 -c "import yaml; yaml.safe_load(open('src/main/resources/application.yml'))" || true
